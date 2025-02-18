@@ -63,14 +63,56 @@ export const signup = async(req, res) => {
       message: "User created Successfully",
     });
   }catch(error){
+    console.log("Error in signup controller", error.message);
     res.status(500).json({messsage: error.message});
   }
 };
 
 export const login = async(req, res) => {
-  res.send("login Page");
+  try{
+    const {email,password} = req.body
+    const user = await User.findOne({email})
+
+    if(user && (await user.comparePassword(password))){
+      const {accessToken, refreshToken} = generateTokens(user._id);
+
+      await storeRefreshToken(user._id, refreshToken);
+      setCookies(res, accessToken, refreshToken);
+
+      res.json({
+        _id: user._id,
+        name: user.name,
+        emial: user.email,
+        role: user.role,
+      });
+    }else{
+      res.status(401).json({message: "Invalid email or password"});
+    }
+  }catch(error){
+    console.log("Error in login controller", error.message);
+    res.status(500).json({message: error.message});
+  }
 }
 
 export const logout = async(req, res) => {
-  res.send("logout Page");
+  try{
+    console.log("running");
+
+    const refreshToken = req.cookies.refreshToken;
+    if(refreshToken){
+
+      const decode = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+      console.log("Redis send");
+      await  redis.del(`refresh_token:${decode.userId}`)
+      console.log("Redis receive");
+
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+      res.json({message: "Logged out successfully"});
+    }
+  }catch(error){
+    console.log("Error in logout controller");
+    res.status(500).json({message: "server error", error: error.message})
+  }
 }
