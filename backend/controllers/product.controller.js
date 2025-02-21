@@ -143,6 +143,6 @@ async function updateFeaturedProductsCache(){
     const featuredProduct = await Product.find({isFeatured: true}).lean() //lean() return plain text instead of full mongoose document. boosts performance
     await redis.set("featured_products", JSON.stringify(featuredProduct));
   }catch(error){
-    console.log("Error in update cache function", error.message)
+    console.log("Error in update cache function", error.message )
   }
 }
