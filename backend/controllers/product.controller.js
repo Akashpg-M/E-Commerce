@@ -121,7 +121,7 @@ export const getProductByCategory = async(req, res) => {
   }
 }
 
-export const toggleFeturedProducts = async(req, res) => {
+export const toggleFeaturedProducts = async(req, res) => {
   try{
     const product = await Product.findBy(req.params.id);
     if(product){

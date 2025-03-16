@@ -1,7 +1,7 @@
 import express from "express";
 
 import{ adminRoute, protectRoute} from "../middleware/auth.middleware.js";
-import {getAnalyticsData} from "../controller/analytics.controller.js";
+import {getAnalyticsData} from "../controllers/analytics.controller.js";
 
 const router = express();
 

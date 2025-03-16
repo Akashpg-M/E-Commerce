@@ -10,13 +10,18 @@ import LoginPage from './pages/LoginPage';
 
 import Navbar from './components/Navbar.jsx';
 import {Toaster} from "react-hot-toast";
-// import { useEffectStore } from "./stores/UserStore";
+import { useUserStore } from "./store/useUserStore";
 
 // import { get } from 'express/lib/response.js';
 
 
 function App() {
-  // const { user, checkAuth, checkingAuth } = useUserStore();
+  const { user,checkAuth } = useUserStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);  // to solve the issue of automatic switch to login page after login and switch to home page and when refres the page we are redirected to login page
+
   // const { getCartItems } = useCartStore();
 
   // useEffect(()=>{
@@ -37,7 +42,7 @@ function App() {
       <Routes>
         <Route path = '/' element={<HomePage/>}/>
         <Route path = '/signup' element = {<SignUpPage/>}/>
-        <Route path = '/login' element = {<LoginPage/>}/>
+        <Route path = '/login' element = {user ? <HomePage/> : <LoginPage/>}/>
         {/*
         
         <Route path='/' element={<HomePage/>}/>

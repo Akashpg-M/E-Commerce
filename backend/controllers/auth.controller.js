@@ -82,7 +82,7 @@ export const login = async(req, res) => {
       res.json({
         _id: user._id,
         name: user.name,
-        emial: user.email,
+        email: user.email,
         role: user.role,
       });
     }else{
