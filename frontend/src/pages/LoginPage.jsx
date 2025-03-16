@@ -64,7 +64,7 @@ const LoginPage = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder='password'
+                  placeholder='*******'
                 />
               </div>
             </div>

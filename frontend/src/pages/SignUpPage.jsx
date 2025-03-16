@@ -89,7 +89,7 @@ const SignUpPage = () => {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder='password'
+                  placeholder='******'
                 />
               </div>
             </div>
