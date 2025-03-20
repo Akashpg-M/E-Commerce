@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -5,98 +6,109 @@ import { LogIn, Mail, Lock, ArrowRight, Loader } from "lucide-react";
 import { useUserStore } from "../store/useUserStore";
 
 const LoginPage = () => {
-  
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
 
-  const { login, loading } = useUserStore();
+	const { login, loading } = useUserStore();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(email, password);
-    login(email,password);
-  }
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		console.log(email, password);
+		login(email, password);
+	};
 
-  return (
-    <div>
-      <motion.div>
-        <h2>Create Your Account</h2>
-      </motion.div>
+	return (
+		<div className='flex flex-col justify-center py-12 sm:px-6 lg:px-8'>
+			<motion.div
+				className='sm:mx-auto sm:w-full sm:max-w-md'
+				initial={{ opacity: 0, y: -20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.8 }}
+			>
+				<h2 className='mt-6 text-center text-3xl font-extrabold text-emerald-400'>Create your account</h2>
+			</motion.div>
 
-      <motion.div>
-        <div>
-          <form onSubmit = {handleSubmit}>
+			<motion.div
+				className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.8, delay: 0.2 }}
+			>
+				<div className='bg-gray-100 py-8 px-4 shadow sm:px-10 rounded-md'>
+					<form onSubmit={handleSubmit} className='space-y-6'>
+						<div>
+							<label htmlFor='email' className='block text-sm font-medium text-black'>
+								Email address
+							</label>
+							<div className='mt-1 relative rounded-md shadow-sm'>
+								<div className='absolute inset-y-0 left-0 pl-3 flex items-center '>
+									<Mail className='h-5 w-5 text-black' aria-hidden='true' />
+								</div>
+								<input
+									id='email'
+									type='email'
+									required
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									className=' block w-full px-3 py-2 pl-10  bg-gray-100 border border-gray-100 
+									rounded-md shadow-sm
+									 placeholder-gray-400 focus:outline-none'
+									placeholder='you@example.com'
+								/>
+							</div>
+						</div>
 
-            {/* E-mail component */}
-            <div>
-              <label htmlFor='email'>
-                Email Address
-              </label>
+						<div>
+							<label htmlFor='password' className='block text-sm font-medium  text-black'>
+								Password
+							</label>
+							<div className='mt-1 relative rounded-md shadow-sm'>
+								<div className='absolute inset-y-0 left-0 pl-3 flex items-center '>
+									<Lock className='h-5 w-5  text-black' aria-hidden='true' />
+								</div>
+								<input
+									id='password'
+									type='password'
+									required
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+									className=' block w-full px-3 py-2 pl-10 bg-gray-100 border border-gray-100
+									rounded-md  placeholder-gray-400 '
+									placeholder='••••••••'
+								/>
+							</div>
+						</div>
 
-              <div>
-                <div>
-                  <Mail aria-hidden='true'/>
-                </div>
-                <input
-                  id='email'
-                  type='email'
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value )}
-                  placeholder='your-email@example.com'
-                />
-              </div>
-            </div>
-            
-            {/* Password */}
-            <div>
-              <label htmlFor='password'>
-                Password
-              </label>
+						<button
+							type='submit'
+							className='w-full flex justify-center py-2 px-4 border  
+							rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600
+							 hover:bg-emerald-700 '
+							disabled={loading}
+						>
+							{loading ? (
+								<>
+									<Loader className='mr-2 h-5 w-5 animate-spin' aria-hidden='true' />
+									Loading...
+								</>
+							) : (
+								<>
+									<LogIn className='mr-2 h-5 w-5' aria-hidden='true' />
+									Login
+								</>
+							)}
+						</button>
+					</form>
 
-              <div>
-                <div>
-                  <Lock aria-hidden='true'/>
-                </div>
-                <input
-                  id='password'
-                  type='password'
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder='*******'
-                />
-              </div>
-            </div>
-            
-            <button
-              type='submit'
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Loader aria-hidden='true'/>
-                  Loading...
-                </>
-              ):(
-                <>
-                  <LogIn aria-hidden='true' />
-                  Login
-                </>
-              )}
-            </button>
-          </form>
-
-          <p>
-            Not a member?{" "}
-            <Link to='/signup'>
-              SignUp here <ArrowRight />
-            </Link>
-          </p>
-        </div>
-      </motion.div>
-    </div>
-  )
-}
-
+					<p className='mt-8 text-center text-sm text-gray-400'>
+						Not a member?{" "}
+						<Link to='/signup' className='font-medium text-emerald-400 hover:text-emerald-300'>
+							Sign up now <ArrowRight className='inline h-4 w-4' />
+						</Link>
+					</p>
+				</div>
+			</motion.div>
+		</div>
+	);
+};
 export default LoginPage;

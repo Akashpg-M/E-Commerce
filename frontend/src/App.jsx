@@ -27,8 +27,10 @@ function App() {
   }, [checkAuth]);  // to solve the issue of automatic switch to login page after login and switch to home page and when refres the page we are redirected to login page
 
   useEffect(() => {
+    if(!user) return;
+
     getCartItems();
-  }, [getCartItems]);
+  }, [getCartItems, user]);
 
   if(checkingAuth) return <LoadingSpinner/>;
 

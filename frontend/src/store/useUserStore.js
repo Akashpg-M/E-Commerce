@@ -57,50 +57,57 @@ export const useUserStore = create((set, get) => ({
   },
 
   refreshToken: async () => {
-    if(get().checkingAuth) return;
+		// Prevent multiple simultaneous refresh attempts
+		if (get().checkingAuth) return;
 
-    set({checkingAuth: true});
-    try{
-      const response = await axios.post("/auth/refresh-token");
-      set({checkingAuth: false});
-      return response.data;
-    }catch(error){
-      set({user: null, checkingAuth: false});
-      throw error;
-    }
-  },
+		set({ checkingAuth: true });
+		try {
+			const response = await axios.post("/auth/refresh-token");
+			set({ checkingAuth: false });
+			return response.data;
+		} catch (error) {
+			set({ user: null, checkingAuth: false });
+			throw error;
+		}
+	},
 }));
 
-//to prevent multiple login 
+//to prevent multiple login uisng interceptors concept
 
 let refreshPromise = null;
 
 axios.interceptors.response.use(
-  (response) => response,
+  (response) => response, // If response is successful, return it
   async (error) => {
     const originalRequest = error.config;
-    if(error.response?.status === 401 && !originalRequest._retry){
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      console.warn(" Access token expired, refreshing...");
       originalRequest._retry = true;
 
-      try{
-        if(refreshPromise) {
-          await refreshPromise;
+      try {
+        if (refreshPromise) {
+          const newToken = await refreshPromise;
+          originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
           return axios(originalRequest);
         }
 
-        //start a refresh Token
         refreshPromise = useUserStore.getState().refreshToken();
-        await refreshPromise;
+        const newToken = await refreshPromise;
         refreshPromise = null;
-        
-        return axios(originalRequest);
 
-      }catch(refreshError){
-        //if refresh fails redirect to login
+        console.log(" New token received:", newToken);
+        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+        return axios(originalRequest);
+      } catch (refreshError) {
+        console.error(" Token refresh failed:", refreshError);
         useUserStore.getState().logout();
         return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
-)
+);
+
+

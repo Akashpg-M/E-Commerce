@@ -84,6 +84,7 @@ export const login = async(req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+
       });
     }else{
       res.status(401).json({message: "Invalid email or password"});
@@ -137,11 +138,12 @@ export const refreshToken = async(req, res) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      samesite: "strict",
+      samesite: "Strict",
       maxAge: 15*60*1000,
     });
 
-    res.json({message: "Token refreshed successfully"});
+    res.json({ accessToken });
+    // res.json({message: "Token refreshed successfully"});
   }catch (error) {
     console.log("Error in refreshToken controller", error.message);
     res.status(500).json({message: "Server error", error: error.message});
