@@ -24,16 +24,19 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  login: async( email, password ) => {
-    set({loading: true});
+  login: async (email, password) => {
+    set({ loading: true });
 
-    try{
-      const res = await axios.post("/auth/login", {email, password});
-      console.log("user is here", res.data)
-      set({user:res.data, loading: false});
-    }catch(error){
-      set({loading: false});
-      toast.error(error.response.data.message || "An error occured");
+    try {
+      const res = await axios.post("/auth/login", { email, password });
+      console.log("user is here", res.data);
+      set({ user: res.data, loading: false });
+      return res.data;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "An error occurred during login";
+      set({ loading: false });
+      toast.error(errorMessage);
+      throw new Error(errorMessage);
     }
   },
 
