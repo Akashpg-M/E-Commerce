@@ -12,10 +12,22 @@ const SignUpPage = () => {
 		confirmPassword: "",
 	});
 
+	const [error, setError] = useState("");
 	const { signup, loading } = useUserStore();
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
+		if (formData.password.length < 6) {
+			setError("Password must be at least 6 characters long.");
+			return;
+		}
+
+		if (formData.password !== formData.confirmPassword) {
+			setError("Passwords do not match.");
+			return;
+		}
+
+		setError("");
 		signup(formData);
 	};
 
@@ -38,6 +50,9 @@ const SignUpPage = () => {
 			>
 				<div className='bg-gray-100 py-8 px-4 shadow sm:rounded-lg sm:px-10'>
 					<form onSubmit={handleSubmit} className='space-y-6'>
+						{error && (
+							<div className="text-red-600 text-sm text-center font-medium">{error}</div>
+						)}
 						<div>
 							<label htmlFor='name' className='block text-sm font-medium text-black'>
 								Full name
