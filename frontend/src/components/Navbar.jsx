@@ -136,7 +136,7 @@ const Navbar = () => {
   );
 };
 
-// Reusable NavLink component
+//  NavLink component
 const NavLink = ({ to, children, icon, count }) => (
   <Link
     to={to}

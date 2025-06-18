@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import { LogIn, Mail, Lock, Loader, ArrowRight, AlertCircle } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { LogIn, Mail, Lock, Loader, AlertCircle } from 'lucide-react';
 import { useUserStore } from '../store/useUserStore';
 import { toast } from 'react-hot-toast';
 
@@ -10,8 +10,22 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user, login, loading, error: authError } = useUserStore();
 
-  const { login, loading } = useUserStore();
+  useEffect(() => {
+    if (user) {
+      const redirectTo = location.state?.from?.pathname || '/';
+      navigate(redirectTo);
+    }
+  }, [user, navigate, location]);
+
+  // Update local error state when authError changes
+  useEffect(() => {
+    if (authError) {
+      setError(authError);
+    }
+  }, [authError]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,10 +33,9 @@ const LoginPage = () => {
     
     try {
       await login(email, password);
-      toast.success('Logged in successfully!');
       navigate('/');
     } catch (err) {
-      setError(err.message || 'Invalid email or password. Please try again.');
+      console.error('Login error:', err);
     }
   };
 

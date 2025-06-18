@@ -25,18 +25,23 @@ export const useUserStore = create((set, get) => ({
   },
 
   login: async (email, password) => {
-    set({ loading: true });
-
     try {
-      const res = await axios.post("/auth/login", { email, password });
-      console.log("user is here", res.data);
+      set({ loading: true });
+      // Create a new axios instance without interceptors for login
+      const loginAxios = axios.create({
+        baseURL: axios.defaults.baseURL,
+        withCredentials: true
+      });
+      
+      const res = await loginAxios.post("/auth/login", { email, password });
       set({ user: res.data, loading: false });
+      toast.success('Logged in successfully!');
       return res.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "An error occurred during login";
-      set({ loading: false });
+      const errorMessage = error.response?.data?.message || "Invalid email or password";
+      set({ loading: false, error: errorMessage });
       toast.error(errorMessage);
-      throw new Error(errorMessage);
+      throw error; // Re-throw to be handled by the component
     }
   },
 
@@ -44,6 +49,8 @@ export const useUserStore = create((set, get) => ({
     try{
       await axios.post("/auth/logout");
       set({ user: null})
+      toast.success('Logout is successfully!');
+
     }catch(error){
       toast.error(error.response?.data?.message || "An error occured during logout");
     }
@@ -75,35 +82,49 @@ export const useUserStore = create((set, get) => ({
 	},
 }));
 
-//to prevent multiple login uisng interceptors concept
+// Skip token refresh for these paths
+const skipRefreshForPaths = ['/auth/login', '/auth/signup', '/auth/refresh-token'];
 
 let refreshPromise = null;
 
-axios.interceptors.response.use(
-  (response) => response, // If response is successful, return it
-  async (error) => {
-    const originalRequest = error.config;
+// Request interceptor to add auth header and skip refresh for specific requests
+axios.interceptors.request.use(config => {
+  if (skipRefreshForPaths.some(path => config.url.includes(path))) {
+    config._skipAuth = true;
+  }
+  return config;
+});
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      console.warn(" Access token expired, refreshing...");
+// Response interceptor for handling token refresh
+axios.interceptors.response.use(
+  response => response,
+  async error => {
+    const originalRequest = error.config;
+    
+    // Skip interceptor for login/signup/refresh-token or if already retried
+    if (originalRequest._skipAuth || originalRequest._retry) {
+      return Promise.reject(error);
+    }
+
+    // Only handle 401 Unauthorized errors
+    if (error.response?.status === 401) {
       originalRequest._retry = true;
 
       try {
-        if (refreshPromise) {
-          const newToken = await refreshPromise;
-          originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-          return axios(originalRequest);
+        // If a refresh is already in progress, wait for it to complete
+        if (!refreshPromise) {
+          refreshPromise = useUserStore.getState().refreshToken()
+            .finally(() => {
+              refreshPromise = null;
+            });
         }
-
-        refreshPromise = useUserStore.getState().refreshToken();
-        const newToken = await refreshPromise;
-        refreshPromise = null;
-
-        console.log(" New token received:", newToken);
-        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+        
+        await refreshPromise;
+        
+        // Retry the original request with new token
         return axios(originalRequest);
       } catch (refreshError) {
-        console.error(" Token refresh failed:", refreshError);
+        // If refresh fails, clear user state
         useUserStore.getState().logout();
         return Promise.reject(refreshError);
       }
@@ -112,5 +133,3 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-
