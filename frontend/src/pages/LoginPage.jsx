@@ -22,8 +22,6 @@ const LoginPage = () => {
       toast.success('Logged in successfully!');
       navigate('/');
     } catch (err) {
-      // The error message is already shown via toast in the store
-      // We'll also show it in the form for better UX
       setError(err.message || 'Invalid email or password. Please try again.');
     }
   };
