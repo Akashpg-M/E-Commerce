@@ -1,5 +1,3 @@
-import "./index.css"
-
 import { Navigate, Route, Routes} from 'react-router-dom';
 
 import HomePage from './pages/HomePage';
@@ -16,6 +14,8 @@ import { useUserStore } from "./store/useUserStore";
 import { useEffect } from "react";
 import {useCartStore} from "./store/useCartStore";
 // import { get } from 'express/lib/response.js';
+import PurchaseSuccessPage from "./pages/PurchaseSuccessPage";
+import PurchaseCancelPage from "./pages/PurchaseCancelPage";
 
 
 function App() {
@@ -41,10 +41,9 @@ function App() {
         <Route path = '/' element={<HomePage/>}/>
         <Route path = '/signup' element = { !user ? <SignUpPage/> : <Navigate to ='/'/>}/>
         <Route path = '/login' element = { !user ? <LoginPage/> : <Navigate to='/'/>}/>
-        <Route path='/secret-dashboard' element={user?.role === "admin" ? <AdminPage/> : <Navigate to='/login'/>}/>
-        <Route
-          path='/secret-dashboard'
-          element={user?.role === "admin" ? <AdminPage />:<Navigate to='login' />}
+        <Route 
+          path='/admin' 
+          element={user?.role === "admin" ? <AdminPage /> : <Navigate to='/login' />}
         />
 
         <Route 
@@ -54,7 +53,11 @@ function App() {
 
         <Route path='/category/:category' element={<CategoryPage />} />
         <Route path='/cart' element={user ? <CartPage /> : <Navigate to='/login' />} />
-        
+        <Route
+						path='/purchase-success'
+						element={user ? <PurchaseSuccessPage /> : <Navigate to='/login' />}
+					/>
+					<Route path='/purchase-cancel' element={user ? <PurchaseCancelPage /> : <Navigate to='/login' />} />
       </Routes>
       <Toaster/>
     </div>

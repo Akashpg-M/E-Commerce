@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs"
+import bcrypt from "bcryptjs";
+
 const userSchema = new mongoose.Schema({
   name:{
     type: String,
     required: [true, "Name is required"]
   },
+  
   email:{
     type:String,
     required:[true, "Email is required"],
@@ -18,6 +20,7 @@ const userSchema = new mongoose.Schema({
     required: [true, "Password is Required"],
     minLength: [6, "Password must be at least 6 characters long"]
   },
+
   cartItems: [
     {
       quantity: {
@@ -30,6 +33,7 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  
   role:{
     type: String,
     enum: ["customer", "admin"],
